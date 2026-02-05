@@ -7,28 +7,9 @@
    <% end %>
   <% end %>
 
-  <table class="show-permissions">
-    <% (0..3).each do |level| -%>
-      <% if @page.users_by_level(level).size != 0 %>
-      <tr>
-	<td><%= l("permission_level_#{level.to_s}") + ':' %></td>
-	<td>
-	  <% @page.users_by_level(level).each do |user| %>
-	    <%= @page.users_by_level(level).last == user ? user.name + '' : user.name + ',' %>
-	  <% end %>
-	</td>
-      </tr>
-      <% end %>
-    <% end -%>
-  </table>
-
   <script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function () {
-      var showPermissions = document.querySelector('.show-permissions');
       var otherFormats = document.querySelector('.other-formats');
-      if (showPermissions && otherFormats && otherFormats.parentNode) {
-        otherFormats.parentNode.insertBefore(showPermissions, otherFormats);
-      }
       var iconHistory = document.querySelector('.icon-history');
       var iconPermissions = document.querySelector('.icon-permissions');
       if (iconHistory && iconPermissions && iconHistory.parentNode) {

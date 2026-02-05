@@ -22,14 +22,6 @@ module WikiPermissions
       WikiPageUserPermission.where(wiki_page_id: id, level: level)
     end
       
-      def users_by_level(level)
-        users = []
-        leveled_permissions(level).each do |permission|
-          users << permission.user
-        end
-        users
-      end
-
       def users_without_permissions
         project.users - users_with_permissions
       end
