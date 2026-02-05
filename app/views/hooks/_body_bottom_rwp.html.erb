@@ -1,0 +1,47 @@
+<% if controller && controller.class.name == 'WikiController' && controller.action_name == "show" && @page && @page.id && @page.visible? %>
+ <% if @page&.project&.enabled_modules&.any? { |enabled_module| enabled_module.name == 'wiki' } %>
+
+  <% if User.current.respond_to?(:not_has_permission?) && (!User.current.not_has_permission?(@page) || User.current.admin) %>
+   <% if User.current.respond_to?(:can_edit_permissions?) && User.current.can_edit_permissions?(@page) %>
+     <%= link_to_if_authorized("Permissions", { action: 'permissions', id: @page.title, project_id: @project }, class: 'icon icon-permissions') %>
+   <% end %>
+  <% end %>
+
+  <table class="show-permissions">
+    <% (0..3).each do |level| -%>
+      <% if @page.users_by_level(level).size != 0 %>
+      <tr>
+	<td><%= l("permission_level_#{level.to_s}") + ':' %></td>
+	<td>
+	  <% @page.users_by_level(level).each do |user| %>
+	    <%= @page.users_by_level(level).last == user ? user.name + '' : user.name + ',' %>
+	  <% end %>
+	</td>
+      </tr>
+      <% end %>
+    <% end -%>
+  </table>
+
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+      var showPermissions = document.querySelector('.show-permissions');
+      var otherFormats = document.querySelector('.other-formats');
+      if (showPermissions && otherFormats && otherFormats.parentNode) {
+        otherFormats.parentNode.insertBefore(showPermissions, otherFormats);
+      }
+      var iconHistory = document.querySelector('.icon-history');
+      var iconPermissions = document.querySelector('.icon-permissions');
+      if (iconHistory && iconPermissions && iconHistory.parentNode) {
+        iconHistory.parentNode.insertBefore(iconPermissions, iconHistory);
+      }
+      <% if User.current.respond_to?(:can_edit?) && !User.current.can_edit?(@page) %>
+      ['.icon-edit', '.icon-lock', '.icon-rename', '.icon-del'].forEach(function (selector) {
+        var el = document.querySelector(selector);
+        if (el) { el.style.display = 'none'; }
+      });
+      <% end %>
+    });
+  </script>
+
+ <% end %>
+<% end %>
