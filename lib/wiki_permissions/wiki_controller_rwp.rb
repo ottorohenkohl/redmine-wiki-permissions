@@ -4,6 +4,7 @@ module WikiPermissions
       base.class_eval do
         helper_method :include_module_wiki_permissions?
         before_action :rwp_check_wiki_permissions, only: %i[show edit update]
+        before_action :rwp_check_wiki_permissions_admin, only: %i[permissions create_wiki_page_user_permissions update_wiki_page_user_permissions destroy_wiki_page_user_permissions]
         before_action :find_existing_page, only: %i[permissions create_wiki_page_user_permissions update_wiki_page_user_permissions destroy_wiki_page_user_permissions]
       end
     end
@@ -73,6 +74,12 @@ module WikiPermissions
 
         deny_access unless User.current.has_permission?(@page) || User.current.can_edit?(@page)
       end
+    end
+
+    def rwp_check_wiki_permissions_admin
+      return if @page.nil?
+
+      deny_access unless User.current.can_edit_permissions?(@page)
     end
 
     def wiki_page_user_permission_params

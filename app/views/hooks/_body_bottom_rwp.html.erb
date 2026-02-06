@@ -2,7 +2,7 @@
   <% if @page && @page.id && @page.visible? %>
     <% if @page&.project&.enabled_modules&.any? { |enabled_module| enabled_module.name == 'wiki' } %>
       <% if User.current.respond_to?(:can_edit_permissions?) && User.current.can_edit_permissions?(@page) %>
-        <%= link_to_if_authorized("Zugriff", { action: 'permissions', id: @page.title, project_id: @project }, class: 'icon icon-permissions') %>
+        <%= link_to("Zugriff", { action: 'permissions', id: @page.title, project_id: @project }, class: 'icon icon-permissions') %>
       <% end %>
     <% end %>
 
@@ -17,7 +17,7 @@
 
             <% if User.current.respond_to?(:can_edit?) %>
                 <% unless User.current.can_edit?(@page) %>
-                    ['.icon-edit', '.icon-lock', '.icon-rename', '.icon-del'].forEach(function (selector) {
+                    ['.icon-edit', '.icon-lock', '.icon-rename', '.icon-move', '.icon-del'].forEach(function (selector) {
                         const el = document.querySelector(selector);
 
                         if (el) {

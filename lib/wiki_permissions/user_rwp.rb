@@ -50,7 +50,8 @@ module WikiPermissions
         ]
 
         if guarded_actions.include?(action[:action]) && options[:params].present?
-          wiki_page = WikiPage.find_by(wiki_id: project.wiki.id, title: options[:params][:page])
+          page_identifier = options[:params][:page] || options[:params][:id]
+          wiki_page = page_identifier && WikiPage.find_by(wiki_id: project.wiki.id, title: page_identifier)
 
           if wiki_page
             permission_level = wiki_page_permission_level(wiki_page)
