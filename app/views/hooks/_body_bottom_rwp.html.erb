@@ -8,11 +8,11 @@
 
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function () {
-            const iconHistory = document.querySelector('.icon-history');
+            const contextMenuEdit = document.querySelector('#content .contextual .icon-edit');
             const iconPermissions = document.querySelector('.icon-permissions');
 
-            if (iconHistory && iconPermissions && iconHistory.parentNode) {
-                iconHistory.parentNode.insertBefore(iconPermissions, iconHistory);
+            if (contextMenuEdit && iconPermissions && contextMenuEdit.parentNode) {
+                contextMenuEdit.parentNode.insertBefore(iconPermissions, contextMenuEdit);
             }
 
             <% if User.current.respond_to?(:can_edit?) %>
