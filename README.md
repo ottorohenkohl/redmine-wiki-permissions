@@ -46,3 +46,8 @@ Hinweis: Falls du ein Versionsverwaltungssystem nutzt, kannst du das Plugin-Repo
 - Model: `WikiPageUserPermission` (Tabelle `wiki_page_user_permissions`)
   - Spalten: `member_id`, `wiki_page_id`, `level` (Integer)
 - Migration: `db/migrate/001_create_wiki_page_user_permissions.rb`
+
+# Credit
+
+Das Plugin wurde als Aktualisierung von [edtsech/redmine_wiki_permissions](https://github.com/edtsech/redmine_wiki_permissions) entwickelt.
+Der großteil der Implementierung geht somit auf die Arbeit von [edtsech](https://github.com/edtsech) zurück.
