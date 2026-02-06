@@ -10,21 +10,16 @@ module WikiPermissions
       member = Member.find_by(user_id: id, project_id: project_id)
       return false if member.nil?
 
-      WikiPageUserPermission.find_by(wiki_page_id: page.id, member_id: member.id).nil?
+      explicit_permission = WikiPageUserPermission.find_by(wiki_page_id: page.id, member_id: member.id)
+      return false if explicit_permission.present?
+
+      default_permission = WikiPageUserPermission.find_by(wiki_page_id: page.id, member_id: nil)
+      default_permission.nil?
     end
 
     def user_permission_greater?(page, lvl)
-      return true if admin
-      return false if page.nil?
-
-      project_id = page.project&.id
-      return false if project_id.nil?
-
-      as_member = Member.find_by(user_id: id, project_id: project_id)
-      return false if as_member.nil?
-
-      wpup = WikiPageUserPermission.find_by(wiki_page_id: page.id, member_id: as_member.id)
-      wpup.present? && wpup.level >= lvl
+      permission_level = wiki_page_permission_level(page)
+      permission_level.present? && permission_level >= lvl
     end
 
     def can_edit?(page)
@@ -58,17 +53,16 @@ module WikiPermissions
           wiki_page = WikiPage.find_by(wiki_id: project.wiki.id, title: options[:params][:page])
 
           if wiki_page
-            member = Member.find_by(user_id: User.current.id, project_id: project.id)
-            permission = member && WikiPageUserPermission.find_by(member_id: member.id, wiki_page_id: wiki_page.id)
+            permission_level = wiki_page_permission_level(wiki_page)
 
-            if permission
+            unless permission_level.nil?
               return case action[:action]
                      when 'index'
-                       permission.level > 0
+                       permission_level > 0
                      when 'edit'
-                       permission.level > 1
+                       permission_level > 1
                      else
-                       permission.level > 2
+                       permission_level > 2
                      end
             end
           end
@@ -76,6 +70,23 @@ module WikiPermissions
       end
 
       super(action, project, options)
+    end
+
+    def wiki_page_permission_level(page)
+      return 3 if admin
+      return nil if page.nil?
+
+      project_id = page.project&.id
+      return nil if project_id.nil?
+
+      as_member = Member.find_by(user_id: id, project_id: project_id)
+      return nil if as_member.nil?
+
+      explicit_permission = WikiPageUserPermission.find_by(wiki_page_id: page.id, member_id: as_member.id)
+      return explicit_permission.level if explicit_permission.present?
+
+      default_permission = WikiPageUserPermission.find_by(wiki_page_id: page.id, member_id: nil)
+      default_permission&.level
     end
   end
 end

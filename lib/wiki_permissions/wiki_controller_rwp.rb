@@ -14,7 +14,7 @@ module WikiPermissions
     end
 
     def permissions
-      @wiki_page_user_permissions = WikiPageUserPermission.where(wiki_page_id: @page.id)
+      @wiki_page_user_permissions = WikiPageUserPermission.where(wiki_page_id: @page.id).where.not(member_id: nil)
 
       render template: 'wiki/edit_permissions'
     end
@@ -30,11 +30,22 @@ module WikiPermissions
     end
 
     def update_wiki_page_user_permissions
-      return redirect_back(fallback_location: { action: 'permissions', id: @page.title, project_id: @page.project }) if params[:wiki_page_user_permission].blank?
+      if params[:wiki_page_default_permission].present?
+        level = params[:wiki_page_default_permission][:level].to_i
 
-      params[:wiki_page_user_permission].each_pair do |index, level|
-        permission = WikiPageUserPermission.find(index.to_i)
-        permission.update(level: level.to_i)
+        if level < 0
+          WikiPageUserPermission.where(wiki_page_id: @page.id, member_id: nil).destroy_all
+        else
+          default_permission = WikiPageUserPermission.find_or_initialize_by(wiki_page_id: @page.id, member_id: nil)
+          default_permission.update(level: level)
+        end
+      end
+
+      if params[:wiki_page_user_permission].present?
+        params[:wiki_page_user_permission].each_pair do |index, level|
+          permission = WikiPageUserPermission.find(index.to_i)
+          permission.update(level: level.to_i)
+        end
       end
 
       redirect_back(fallback_location: { action: 'permissions', id: @page.title, project_id: @page.project })
