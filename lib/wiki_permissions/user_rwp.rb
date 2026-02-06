@@ -1,14 +1,14 @@
 module WikiPermissions
   module UserRwp
-    def not_has_permission?(page)
-      return true if page.nil?
+    def has_permission?(page)
       return true if admin
+      return false if page.nil?
 
       project_id = page.project&.id
-      return true if project_id.nil?
+      return false if project_id.nil?
 
       member = Member.find_by(user_id: id, project_id: project_id)
-      return true if member.nil?
+      return false if member.nil?
 
       WikiPageUserPermission.find_by(wiki_page_id: page.id, member_id: member.id).nil?
     end
@@ -42,8 +42,7 @@ module WikiPermissions
     def allowed_to?(action, project, options = {})
       return super(action, project, options) if project.nil? || project.wiki.nil?
 
-      if project.enabled_modules.any? { |enabled_module| enabled_module.name == 'wiki' } &&
-         action.is_a?(Hash) && action[:controller] == 'wiki'
+      if project.enabled_modules.any? { |enabled_module| enabled_module.name == 'wiki' } && action.is_a?(Hash) && action[:controller] == 'wiki'
         return true if User.current&.admin
 
         guarded_actions = %w[
@@ -57,9 +56,11 @@ module WikiPermissions
 
         if guarded_actions.include?(action[:action]) && options[:params].present?
           wiki_page = WikiPage.find_by(wiki_id: project.wiki.id, title: options[:params][:page])
+
           if wiki_page
             member = Member.find_by(user_id: User.current.id, project_id: project.id)
             permission = member && WikiPageUserPermission.find_by(member_id: member.id, wiki_page_id: wiki_page.id)
+
             if permission
               return case action[:action]
                      when 'index'

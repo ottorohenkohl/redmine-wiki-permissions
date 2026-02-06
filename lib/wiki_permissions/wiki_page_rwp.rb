@@ -9,6 +9,7 @@ module WikiPermissions
 
     def visible?(user = User.current)
       allowed = super(user)
+
       return false unless allowed
 
       rwp_page_visible?(user)
@@ -28,9 +29,11 @@ module WikiPermissions
       
       def users_with_permissions
         users = []
+
         WikiPageUserPermission.where(wiki_page_id: id).each do |permission|
           users << permission.user
         end
+
         users        
       end
       
@@ -40,15 +43,18 @@ module WikiPermissions
       
       def members_with_permissions
         members_wp = []
+
         permissions.each do |permission|
           members_wp << permission.member
         end
+
         members_wp
       end
       
       private
       def role_creator
         member = wiki.project.members.find_by(user_id: User.current.id)
+
         return if member.nil?
 
         WikiPageUserPermission.create(wiki_page_id: id, level: 3, member_id: member.id)

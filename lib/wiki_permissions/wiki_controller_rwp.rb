@@ -15,11 +15,13 @@ module WikiPermissions
 
     def permissions
       @wiki_page_user_permissions = WikiPageUserPermission.where(wiki_page_id: @page.id)
+
       render template: 'wiki/edit_permissions'
     end
 
     def create_wiki_page_user_permissions
       @wiki_page_user_permission = WikiPageUserPermission.new(wiki_page_user_permission_params)
+
       if @wiki_page_user_permission.save
         redirect_to action: 'permissions', id: @page.title, project_id: @page.project
       else
@@ -34,6 +36,7 @@ module WikiPermissions
         permission = WikiPageUserPermission.find(index.to_i)
         permission.update(level: level.to_i)
       end
+
       redirect_back(fallback_location: { action: 'permissions', id: @page.title, project_id: @page.project })
     end
 
@@ -53,10 +56,11 @@ module WikiPermissions
 
       case action_name
       when 'show'
-        deny_access if !User.current.not_has_permission?(@page) && !User.current.can_view?(@page)
+        deny_access unless User.current.has_permission?(@page) || User.current.can_view?(@page)
       when 'edit', 'update'
         return if @page.new_record?
-        deny_access if !User.current.not_has_permission?(@page) && !User.current.can_edit?(@page)
+
+        deny_access unless User.current.has_permission?(@page) || User.current.can_edit?(@page)
       end
     end
 

@@ -1,28 +1,34 @@
-<% if controller && controller.class.name == 'WikiController' && controller.action_name == "show" && @page && @page.id && @page.visible? %>
- <% if @page&.project&.enabled_modules&.any? { |enabled_module| enabled_module.name == 'wiki' } %>
-
-  <% if User.current.respond_to?(:not_has_permission?) && (!User.current.not_has_permission?(@page) || User.current.admin) %>
-   <% if User.current.respond_to?(:can_edit_permissions?) && User.current.can_edit_permissions?(@page) %>
-     <%= link_to_if_authorized("Permissions", { action: 'permissions', id: @page.title, project_id: @project }, class: 'icon icon-permissions') %>
-   <% end %>
-  <% end %>
-
-  <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function () {
-      var otherFormats = document.querySelector('.other-formats');
-      var iconHistory = document.querySelector('.icon-history');
-      var iconPermissions = document.querySelector('.icon-permissions');
-      if (iconHistory && iconPermissions && iconHistory.parentNode) {
-        iconHistory.parentNode.insertBefore(iconPermissions, iconHistory);
-      }
-      <% if User.current.respond_to?(:can_edit?) && !User.current.can_edit?(@page) %>
-      ['.icon-edit', '.icon-lock', '.icon-rename', '.icon-del'].forEach(function (selector) {
-        var el = document.querySelector(selector);
-        if (el) { el.style.display = 'none'; }
-      });
+<% if controller && controller.class.name == 'WikiController' && controller.action_name == "show" %>
+  <% if @page && @page.id && @page.visible? %>
+    <% if @page&.project&.enabled_modules&.any? { |enabled_module| enabled_module.name == 'wiki' } %>
+      <% if User.current.respond_to?(:has_permission?) && User.current.has_permission?(@page) %>
+        <% if User.current.respond_to?(:can_edit_permissions?) && User.current.can_edit_permissions?(@page) %>
+          <%= link_to_if_authorized("Permissions", { action: 'permissions', id: @page.title, project_id: @project }, class: 'icon icon-permissions') %>
+        <% end %>
       <% end %>
-    });
-  </script>
+    <% end %>
 
- <% end %>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const iconHistory = document.querySelector('.icon-history');
+            const iconPermissions = document.querySelector('.icon-permissions');
+
+            if (iconHistory && iconPermissions && iconHistory.parentNode) {
+                iconHistory.parentNode.insertBefore(iconPermissions, iconHistory);
+            }
+
+            <% if User.current.respond_to?(:can_edit?) %>
+                <% unless User.current.can_edit?(@page) %>
+                    ['.icon-edit', '.icon-lock', '.icon-rename', '.icon-del'].forEach(function (selector) {
+                        const el = document.querySelector(selector);
+
+                        if (el) {
+                            el.style.display = 'none';
+                        }
+                    });
+                <% end %>
+            <% end %>
+        });
+    </script>
+  <% end %>
 <% end %>
