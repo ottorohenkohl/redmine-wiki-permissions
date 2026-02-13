@@ -3,8 +3,8 @@ module WikiPermissions
     def self.prepended(base)
       base.class_eval do
         helper_method :include_module_wiki_permissions?
-        before_action :rwp_find_page_for_actions, only: %i[rename destroy history annotate destroy_version]
-        before_action :rwp_check_wiki_permissions, only: %i[show edit update rename destroy history annotate destroy_version]
+        before_action :rwp_find_page_for_actions, only: %i[rename destroy history annotate destroy_version add_attachment]
+        before_action :rwp_check_wiki_permissions, only: %i[show edit update rename destroy history annotate destroy_version add_attachment]
         before_action :rwp_check_wiki_permissions_admin, only: %i[permissions create_wiki_page_user_permissions update_wiki_page_user_permissions destroy_wiki_page_user_permissions]
         before_action :find_existing_page, only: %i[permissions create_wiki_page_user_permissions update_wiki_page_user_permissions destroy_wiki_page_user_permissions]
       end

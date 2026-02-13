@@ -23,7 +23,10 @@ module WikiPermissions
     end
 
     def can_edit?(page)
-      user_permission_greater?(page, 2)
+      permission_level = wiki_page_permission_level(page)
+      return has_permission?(page) if permission_level.nil?
+
+      permission_level >= 2
     end
 
     def can_edit_permissions?(page)
@@ -31,7 +34,10 @@ module WikiPermissions
     end
 
     def can_view?(page)
-      user_permission_greater?(page, 1)
+      permission_level = wiki_page_permission_level(page)
+      return has_permission?(page) if permission_level.nil?
+
+      permission_level >= 1
     end
 
     def allowed_to?(action, project, options = {})

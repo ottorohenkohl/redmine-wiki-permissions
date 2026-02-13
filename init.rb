@@ -4,6 +4,7 @@ Rails.configuration.to_prepare do
   SearchController.prepend(WikiPermissions::SearchControllerRwp) unless SearchController.ancestors.include?(WikiPermissions::SearchControllerRwp)
   User.prepend(WikiPermissions::UserRwp) unless User.ancestors.include?(WikiPermissions::UserRwp)
   Member.prepend(WikiPermissions::MemberRwp) unless Member.ancestors.include?(WikiPermissions::MemberRwp)
+  AttachmentsController.prepend(WikiPermissions::AttachmentsControllerRwp) unless AttachmentsController.ancestors.include?(WikiPermissions::AttachmentsControllerRwp)
   Redmine::WikiFormatting::Macros::Definitions.prepend(WikiPermissions::MacrosRwp) unless Redmine::WikiFormatting::Macros::Definitions.ancestors.include?(WikiPermissions::MacrosRwp)
 
   if WikiController.respond_to?(:clear_action_methods!)
@@ -15,6 +16,7 @@ Rails.application.config.after_initialize do
   User.prepend(WikiPermissions::UserRwp) unless User.ancestors.include?(WikiPermissions::UserRwp)
   WikiPage.prepend(WikiPermissions::WikiPageRwp) unless WikiPage.ancestors.include?(WikiPermissions::WikiPageRwp)
   WikiController.prepend(WikiPermissions::WikiControllerRwp) unless WikiController.ancestors.include?(WikiPermissions::WikiControllerRwp)
+  AttachmentsController.prepend(WikiPermissions::AttachmentsControllerRwp) unless AttachmentsController.ancestors.include?(WikiPermissions::AttachmentsControllerRwp)
 
   if WikiController.respond_to?(:clear_action_methods!)
     WikiController.send(:clear_action_methods!)
