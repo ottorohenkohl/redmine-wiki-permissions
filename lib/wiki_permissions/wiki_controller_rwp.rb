@@ -3,7 +3,8 @@ module WikiPermissions
     def self.prepended(base)
       base.class_eval do
         helper_method :include_module_wiki_permissions?
-        before_action :rwp_check_wiki_permissions, only: %i[show edit update]
+        before_action :rwp_find_page_for_actions, only: %i[rename destroy history annotate destroy_version]
+        before_action :rwp_check_wiki_permissions, only: %i[show edit update rename destroy history annotate destroy_version]
         before_action :rwp_check_wiki_permissions_admin, only: %i[permissions create_wiki_page_user_permissions update_wiki_page_user_permissions destroy_wiki_page_user_permissions]
         before_action :find_existing_page, only: %i[permissions create_wiki_page_user_permissions update_wiki_page_user_permissions destroy_wiki_page_user_permissions]
       end
@@ -67,9 +68,9 @@ module WikiPermissions
       return if @page.nil?
 
       case action_name
-      when 'show'
+      when 'show', 'history', 'annotate'
         deny_access unless User.current.has_permission?(@page) || User.current.can_view?(@page)
-      when 'edit', 'update'
+      when 'edit', 'update', 'rename', 'destroy', 'destroy_version'
         return if @page.new_record?
 
         deny_access unless User.current.has_permission?(@page) || User.current.can_edit?(@page)
@@ -80,6 +81,16 @@ module WikiPermissions
       return if @page.nil?
 
       deny_access unless User.current.can_edit_permissions?(@page)
+    end
+
+    def rwp_find_page_for_actions
+      return if @page.present?
+      return if @wiki.nil?
+
+      page_identifier = params[:page] || params[:id] || params[:title]
+      return if page_identifier.blank?
+
+      @page = @wiki.pages.find_by(title: page_identifier) || WikiPage.find_by(wiki_id: @wiki.id, title: page_identifier)
     end
 
     def wiki_page_user_permission_params

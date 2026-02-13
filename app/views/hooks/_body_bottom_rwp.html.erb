@@ -30,3 +30,21 @@
     </script>
   <% end %>
 <% end %>
+
+<% if controller && controller.class.name == 'WikiController' && controller.action_name == "history" %>
+  <% if @page && @page.id && @page.visible? %>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            <% if User.current.respond_to?(:can_edit?) %>
+                <% unless User.current.can_edit?(@page) %>
+                    ['#content .icon-del', '#content .icon-annotate'].forEach(function (selector) {
+                        document.querySelectorAll(selector).forEach(function (el) {
+                            el.style.display = 'none';
+                        });
+                    });
+                <% end %>
+            <% end %>
+        });
+    </script>
+  <% end %>
+<% end %>

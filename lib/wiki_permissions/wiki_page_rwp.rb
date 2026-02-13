@@ -16,7 +16,9 @@ module WikiPermissions
     end
 
     def rwp_page_visible?(user)
-      user.present? && user.can_view?(self)
+      return false unless user.present?
+
+      user.has_permission?(self) || user.can_view?(self)
     end
 
     def leveled_permissions(level)
