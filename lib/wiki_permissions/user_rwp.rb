@@ -41,7 +41,15 @@ module WikiPermissions
     end
 
     def allowed_to?(action, project, options = {})
-      return super(action, project, options) if project.nil? || project.wiki.nil?
+      return super(action, project, options) unless project.is_a?(Project)
+
+      begin
+        wiki = project.try(:wiki)
+      rescue NoMethodError
+        return super(action, project, options)
+      end
+
+      return super(action, project, options) if wiki.nil?
 
       if project.enabled_modules.any? { |enabled_module| enabled_module.name == 'wiki' } && action.is_a?(Hash) && action[:controller] == 'wiki'
         return true if User.current&.admin
